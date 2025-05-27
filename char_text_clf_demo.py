@@ -19,7 +19,7 @@ model = load_model()
 
 st.set_page_config(
     page_title="Text Classifier",
-    page_icon="🔤",
+    # page_icon="🔤",
     layout="centered")
 
 st.title("Real-Time Text Classifier")
