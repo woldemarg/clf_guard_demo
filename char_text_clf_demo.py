@@ -62,7 +62,8 @@ def draw_bars(label_probs: dict):
         yaxis=dict(
             title=None,
             showgrid=False
-        )
+        ),
+        barcornerradius=15
     )
 
     return fig
