@@ -3,6 +3,7 @@ from joblib import load
 from time import time
 import pandas as pd
 import plotly.express as px
+from char_text_clf_class import CharTextClassifier
 
 # %%
 
