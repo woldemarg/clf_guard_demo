@@ -27,6 +27,7 @@ from tree_stem import stem_word
 
 # %%
 
+
 # Set seed for consistent language detection
 DetectorFactory.seed = 42
 
@@ -113,7 +114,7 @@ class LanguageProcessor:
         """Stem a token using language-specific stemmer"""
         if self.language == 'uk':
             return stem_word(token)
-        if self.stemmer:
+        elif self.stemmer:
             return self.stemmer.stem(token)
         return token
 
@@ -122,18 +123,18 @@ class LanguageProcessor:
         try:
             text = self.clean_text(text)
             tokens = word_tokenize(text)
-            return [
+            return " ".join([
                 self.stem_token(token)
                 for token in tokens
                 if token not in self.stop_words and len(token) > 1
-            ]
+            ])
         except Exception:
             # Fallback to simple splitting if tokenization fails
             words = text.split()
-            return [
+            return " ".join([
                 word for word in words
                 if word not in self.stop_words and len(word) > 1
-            ]
+            ])
 
 
 class MultilingualTextClassifier(BaseEstimator, ClassifierMixin):
@@ -200,9 +201,11 @@ class MultilingualTextClassifier(BaseEstimator, ClassifierMixin):
 
         # TF-IDF Vectorizer with language-specific tokenizer
         vectorizer = TfidfVectorizer(
-            analyzer='word',
-            token_pattern=None,
-            tokenizer=processor.tokenize_and_stem,
+            # analyzer='word',
+            analyzer='char_wb',
+            # token_pattern=None,
+            # tokenizer=processor.tokenize_and_stem,
+            preprocessor=processor.tokenize_and_stem,
             ngram_range=self.ngram_range,
             max_features=self.max_features,
             sublinear_tf=True,
@@ -464,10 +467,7 @@ class MultilingualTextClassifier(BaseEstimator, ClassifierMixin):
 
         return self.DEFAULT_LANGUAGE
 
-    def predict_text(self,
-                     text: str,
-                     # return_probabilities: bool = True
-                     ) -> Dict[str, Union[List[str], Dict[str, float]]]:
+    def predict_text(self, text: str, return_probabilities: bool = True) -> Dict[str, Union[List[str], Dict[str, float]]]:
         """
         Predict labels for input text.
 
@@ -487,10 +487,10 @@ class MultilingualTextClassifier(BaseEstimator, ClassifierMixin):
 
         # Default fallback response
         fallback_response = {
-            # 'predicted_labels': [],
+            'predicted_labels': [],
             'probabilities': {},
             'detected_language': 'unknown',
-            # 'confidence': 0.0,
+            'confidence': 0.0,
             'error': None
         }
 
@@ -514,10 +514,10 @@ class MultilingualTextClassifier(BaseEstimator, ClassifierMixin):
             label_encoder = self.label_encoders_[detected_lang]
 
             # Predict
-            # if return_probabilities:
-            probs = classifier.predict_proba([text])[0]
-            probabilities = dict(
-                zip(label_encoder.classes_, probs.round(3)))
+            if return_probabilities:
+                probs = classifier.predict_proba([text])[0]
+                probabilities = dict(
+                    zip(label_encoder.classes_, probs.round(3)))
 
             #     # Get predicted labels (threshold at 0.5)
             #     predictions = classifier.predict([text])[0]
@@ -563,3 +563,4 @@ class MultilingualTextClassifier(BaseEstimator, ClassifierMixin):
     #         langs = list(self.classifiers_.keys())
     #         return f"MultilingualTextClassifier(fitted_languages={langs})"
     #     return "MultilingualTextClassifier(not_fitted)"
+
