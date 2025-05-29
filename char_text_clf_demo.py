@@ -3,14 +3,19 @@ from joblib import load
 from time import time
 import pandas as pd
 import plotly.express as px
-from char_text_clf_class import CharTextClassifier
+# from char_text_clf_class import CharTextClassifier
+from classifier_class import (
+    MultilingualTextClassifier,
+    LanguageProcessor,
+    ClassifierMetrics)
 
 # %%
 
 
 @st.cache_resource
 def load_model():
-    return load("char_text_clf_model.joblib")
+    # return load("char_text_clf_model.joblib")
+    return load("clf_model.joblib")
 
 
 # %%
@@ -29,7 +34,7 @@ user_input = st.text_input("Text here", placeholder="Start typing...")
 
 def draw_bars(label_probs: dict):
 
-    dt = pd.Series(label_probs).sort_index(ascending=False)
+    dt = pd.Series(label_probs["probabilities"]).sort_index(ascending=False)
 
     fig = px.bar(
         dt,
@@ -71,9 +76,11 @@ def draw_bars(label_probs: dict):
 
 if user_input.strip():
     start = time()
-    probs = model.predict(user_input)
+    # probs = model.predict(user_input)
+    probs = model.predict_text(user_input)
     elapsed = (time() - start) * 1000  # ms
 
     figure = draw_bars(probs)
     st.plotly_chart(figure, use_container_width=True)
+    st.caption(f"🔤 {probs['detected_language']}")
     st.caption(f"⏱️ {elapsed:.1f} ms")
