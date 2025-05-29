@@ -29,6 +29,7 @@ st.set_page_config(
 
 st.title("Real-Time Text Classifier")
 
+
 user_input = st.text_input("Text here", placeholder="Start typing...")
 
 
@@ -75,6 +76,7 @@ def draw_bars(label_probs: dict):
 
 
 if user_input.strip():
+
     start = time()
     # probs = model.predict(user_input)
     probs = model.predict_text(user_input)
@@ -82,5 +84,14 @@ if user_input.strip():
 
     figure = draw_bars(probs)
     st.plotly_chart(figure, use_container_width=True)
+
     st.caption(f"🔤 {probs['detected_language']}")
     st.caption(f"⏱️ {elapsed:.1f} ms")
+
+    st.divider()
+
+    st.text("Raw output:")
+    st.json(
+        probs,
+        expanded=2,
+    )
